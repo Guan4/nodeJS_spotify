@@ -91,32 +91,12 @@ app.get('/callback', function(req, res) {
       if (!error && response.statusCode === 200) {
 	      var sql = "INSERT INTO userInfo(cookie, access_token, refresh_token) VALUES('"+storedState+"', '"+body.access_token+"', '"+body.refresh_token+"')";
 
-	      // sqlDB.run(sql, [], function(err){
-		     //  if (err) { return console.error(err.message);}
-		     //  console.log('insert done.');
-	      // });
-
-
-        var access_token = body.access_token,
-            refresh_token = body.refresh_token;
+	      sqlDB.run(sql, [], function(err){
+		      if (err) { return console.error(err.message);}
+		      console.log('insert done.');
+	      });
 
 	      res.redirect('/#');
-
-        // var options = {
-        //   url: 'https://api.spotify.com/v1/me',
-        //   headers: { 'Authorization': 'Bearer ' + access_token },
-        //   json: true
-        // };
-
-        // use the access token to access the Spotify Web API
-        // request.get(options, function(error, response, body) {
-        //   // we can also pass the token to the browser to make requests from there
-        //   res.redirect('/#' +
-        //     querystring.stringify({
-        //       access_token: access_token,
-        //       display_name: body.display_name
-        //     }));
-        //   });
       } else {
         res.redirect('/#' +
           querystring.stringify({
@@ -197,7 +177,8 @@ function refreshToken(refresh_token, cookie, callback){
 				return callback(returnArr);
 			});
 		}else{
-			var returnArr = {'result': false, 'err': 'Access_token_expired! Can not use refresh_token to get a new access_token.'};
+			//need to update cookie to --- in sql database.
+			var returnArr = {'result': false, 'err': 'Can not use refresh_token to get a new access_token. Authorized may be removed.'};
 			return callback(returnArr);
 		}
 
