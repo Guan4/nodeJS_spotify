@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css">
     <style type="text/css">
       body{
-        background: skyblue;
+        background: black;
         font-family: verdana;
         color: #fff;
         padding: 30px;
@@ -20,40 +20,88 @@
         white-space: nowrap;
         width: 500px;
       }
+      .cd_circle{
+        position: absolute;
+        top: 35%;
+        left: 36%;
+        background-color: black;
+        border: gray solid 4px;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+      }
+      .spin {
+        -webkit-animation:spin 4s linear infinite;
+        -moz-animation:spin 4s linear infinite;
+        animation:spin 4s linear infinite;
+      }
+      #album_img{
+        opacity: 0.8;
+        border-radius: 50%;
+        width: 300px;
+        height: 300px;
+      }
+      .buttons img{
+        width: 40px;
+        margin-right: 10px;
+        cursor: pointer;
+      }
+
+      .buttons img:hover{
+        border-radius: 60%;
+        background-color: #FFCD87;
+      }
+
+      @-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
+      @-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
+      @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
     </style>
   </head>
 
   <body>
     <div class="container">
-      <div id="login">
-        <h1>This is an example of the Authorization Code flow</h1>
-        <a href="/login" class="btn btn-primary">Log in with Spotify</a>
-      </div>
-      <div id="loggedin">
-        <div id="user-profile">
+      <div class="row">
+        <div class="col-lg-6 leftDesign" style="text-align: center;">
+          <img class="topD" src="img/notes_w.png" style="width: 400px;">
+          <img class="bottomD" src="img/item1.png" style="height: 400px;">
         </div>
-         <div id="player">
-        </div>
-        <div class="buttons">
-           <button class="btn btn-default" id="playPrevious"><i class="fa fa-step-backward" aria-hidden="true"></i></button>
-           <button class="btn btn-default" data-mode="playing" id="playbtn"><i class="fa fa-pause" aria-hidden="true"></i></button>
-           <button class="btn btn-default" id="playNext"><i class="fa fa-step-forward" aria-hidden="true"></i></button>
+
+        <div class="col-lg-6 basicInfo">
+          <div id="login">
+            <h1>This is an example of the Authorization Code flow</h1>
+            <a href="/login" class="btn btn-primary">Log in with Spotify</a>
+          </div>
+          <div id="loggedin">
+            <div id="user-profile">
+            </div>
+            <div id="player">
+            </div>
+            <div class="buttons" style="text-align: center;">
+              <img id="playPrevious" src="img/previous_w.png">
+              <img id="playbtn" src="img/play_w.png">
+              <img id="playNext" src="img/next_w.png">
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
     <script id="user-profile-template" type="text/x-handlebars-template">
-      <h1>Hello {{display_name}}</h1>
+      <h4 style="display: inline-block;">{{greeting}}</h4>
+      <h3 style="display: inline-block;">{{display_name}}</h3>
     </script>
 
     <script id="player-template" type="text/x-handlebars-template">
-      <h2>Now you are listening to</h2>
+      <h4 style="display: inline-block;">Now listening to: <span>{{item.name}}</span></h4>
+      <div style="position: relative;">
+        <img id="turnTable" src="img/turnTable.png" style="width: 515px;">
+        <img id="album_img" src="{{item.album.images.1.url}}" style="position: absolute; left: 71px; top: 68px;">
+        <img id="pointer" src="img/pointer.png" style="width: 230px; position: absolute; left: 252px; top: 54px;">
+        <!--<div class="cd_circle"></div>-->
+      </div>
+      <br>
       <div>
-        <img id="album_img" src="{{item.album.images.1.url}}">
-        <div>
-          <p>{{item.name}}</p>
-          <p>{{item.artists.0.name}}</p>
-        </div>
+        <p style="text-align: right;">Artist: {{item.artists.0.name}}</p>
       </div>
     </script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.1/handlebars.min.js"></script>
@@ -77,16 +125,18 @@
             playerTemplate = Handlebars.compile(playerSource),
             playerPlaceholder = document.getElementById('player');
 
+        var Greeting = {};
+
 	      if(cookie){
 		      $.ajax({
 			      url: '/userLogin',
 			      data: { cookie: cookie},
 			      success: function(response) {
-			      	console.log(response);
               if(response.result){
 					      access_token = response.access_token;
 					      var display_name = response.display_name;
-					      userProfilePlaceholder.innerHTML = userProfileTemplate({display_name: display_name});
+	              Greeting['display_name'] = display_name;
+					      // userProfilePlaceholder.innerHTML = userProfileTemplate({display_name: display_name});
 					      $('#login').hide();
 					      $('#loggedin').show();
               }else{
@@ -97,12 +147,14 @@
 		      });
 
 		      var currentPlaySong = '';
+		      var currentGreeting = '';
 
 
 
 		      setInterval(function(){
 			      if(access_token !== undefined){
 			      	getPlayerInfo();
+			      	getTime();
 			      }
           }, 1000);
 
@@ -118,11 +170,28 @@
 						      var image = response.item.album.images[1].url;
 						      if(response.is_playing == false){
 							      $('#playbtn').attr('data-mode','pause');
-							      $('#playbtn').html('<i class="fa fa-play" aria-hidden="true"></i>');
+							      $('#playbtn').attr('src', 'img/play_w.png');
+							      // $('#playbtn').html('<i class="fa fa-play" aria-hidden="true"></i>');
 						      }else{
 							      $('#playbtn').attr('data-mode','playing');
-							      $('#playbtn').html('<i class="fa fa-pause" aria-hidden="true"></i>');
+							      $('#playbtn').attr('src', 'img/pause_w.png');
+							      // $('#playbtn').html('<i class="fa fa-pause" aria-hidden="true"></i>');
+							      $('#album_img').addClass('spin');
 						      }
+					      }
+				      }
+			      });
+		      }
+
+		      function getTime(){
+			      $.ajax({
+				      url: '/getTime',
+				      success: function(response) {
+					      var greeting = response.greeting;
+					      if(currentGreeting !== greeting){
+						      currentGreeting = greeting;
+						      Greeting['greeting'] = greeting;
+						      userProfilePlaceholder.innerHTML = userProfileTemplate(Greeting);
 					      }
 				      }
 			      });
@@ -140,6 +209,8 @@
 			      url: '/playPrevious',
 			      data: { access_token: access_token},
 			      success: function(response) {
+				      console.log('spin2');
+				      $('#album_img').addClass('spin');
 			      }
 		      });
 	      });
@@ -150,6 +221,8 @@
 			      url: '/playNext',
 			      data: { access_token: access_token},
 			      success: function(response) {
+				      console.log('spin3');
+			      	$('#album_img').addClass('spin');
 			      }
 		      });
 	      });
@@ -163,7 +236,8 @@
 				      data: { access_token: access_token},
 				      success: function(response) {
 					      console.log(response);
-					      $('#playbtn').html('<i class="fa fa-play" aria-hidden="true"></i>');
+					      $('#playbtn').attr('src','img/play_w.png');
+					      $('#album_img').removeClass('spin');
 				      }
 			      });
 		      }else{
@@ -173,7 +247,10 @@
 				      data: { access_token: access_token},
 				      success: function(response) {
 					      console.log(response);
-					      $('#playbtn').html('<i class="fa fa-pause" aria-hidden="true"></i>');
+					      $('#playbtn').attr('src', 'img/pause_w.png');
+					      // $('#playbtn').html('<i class="fa fa-pause" aria-hidden="true"></i>');
+					      console.log('spin4');
+					      $('#album_img').addClass('spin');
 				      }
 			      });
 		      }

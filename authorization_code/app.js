@@ -14,6 +14,8 @@ var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
 var sqlite3 = require('sqlite3').verbose();
 
+var client_id = '0619847e14194e56a1626645d10a33d9'; // Your client id
+var client_secret = 'b4b7fe03489e497985eeac2ec7ea969b'; // Your secret
 var redirect_uri = 'http://127.0.0.1:8888/callback'; // Your redirect uri
 
 /**
@@ -142,6 +144,23 @@ app.get('/userLogin', function(req, res) {
     }
 });
 
+app.get('/getTime', function(req, res) {
+	var date = new Date();
+	var current_hour = date.getHours();
+	if(current_hour >= 5 && current_hour < 12){
+		var greeting = "Rise & Shine";
+	}else if(current_hour >= 12 && current_hour < 18){
+		greeting = "Good Afternoon";
+	}else if(current_hour >= 18 && current_hour < 23){
+		greeting = "Good Evening";
+	}else{
+		greeting = "Night Night";
+	}
+
+	var returnArr = {'result': true, 'greeting': greeting};
+	res.json(returnArr);
+});
+
 function refreshToken(refresh_token, cookie, callback){
 	var authOptions = {
 		url: 'https://accounts.spotify.com/api/token',
@@ -177,7 +196,12 @@ function refreshToken(refresh_token, cookie, callback){
 				return callback(returnArr);
 			});
 		}else{
-			//need to update cookie to --- in sql database.
+			//token expired and authorized been removed.
+			var sql = "UPDATE userInfo SET cookie='----expired----' WHERE cookie='"+cookie+"'";
+			sqlDB.run(sql, [], function(err){
+				if (err) { return console.error(err.message);}
+				console.log('Authorized been removed, so remove cookie in sql.');
+			});
 			var returnArr = {'result': false, 'err': 'Can not use refresh_token to get a new access_token. Authorized may be removed.'};
 			return callback(returnArr);
 		}
