@@ -55,6 +55,53 @@
       @-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
       @-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
       @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+
+
+      /*volume slider css*/
+      .demo {
+        display: none;
+        position: absolute;
+        top: 345px;
+        right: 85px;
+      }
+      .ui-slider .ui-slider-handle {
+        position: absolute;
+        z-index: 2;
+        width: 2em;
+        height: 2em;
+        cursor: default;
+      }
+      .ui-slider .ui-slider-range {
+        position: absolute;
+        z-index: 1;
+        font-size: .7em;
+        display: block;
+        border: 0;
+        background-position: 0 0;
+      }
+
+      #slider-vertical{
+        height:199px;
+        width: 32px;
+        position: relative;
+        background-color: #FBD3D1;
+        border-radius: 5px;
+        border: 14px solid #2E7743;
+
+      }
+
+      .ui-slider-vertical .ui-slider-handle {
+        background: orange;
+        width: 25px;
+        height: 12px;
+        border-bottom: 2px solid #6D403F;
+        left: -.7em;
+        margin-bottom: -.5em;
+      }
+      .ui-slider-vertical .ui-slider-range {
+        left: 0;
+        width: 100%;
+      }
     </style>
   </head>
 
@@ -76,11 +123,16 @@
             </div>
             <div id="player">
             </div>
+            <div class="demo">
+              <input type="hidden" id="amount"/>
+              <div id="slider-vertical"></div>
+            </div>
             <div class="buttons" style="text-align: center;">
               <img id="playPrevious" src="img/previous_w.png">
               <img id="playbtn" src="img/play_w.png">
               <img id="playNext" src="img/next_w.png">
             </div>
+
           </div>
         </div>
       </div>
@@ -105,9 +157,10 @@
       </div>
     </script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.1/handlebars.min.js"></script>
-    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
-	    var access_token;
+      var access_token;
 		    function cookieExists(name) {
         var cks = document.cookie.split(';');
         for(i = 0; i < cks.length; i++)
@@ -124,6 +177,8 @@
         var playerSource = document.getElementById('player-template').innerHTML,
             playerTemplate = Handlebars.compile(playerSource),
             playerPlaceholder = document.getElementById('player');
+
+        $('.demo').show();
 
         var Greeting = {};
 
@@ -256,6 +311,28 @@
 		      }
 	      });
       })();
+
+// set volume
+      var s = $("#slider-vertical").slider({
+	      orientation: "vertical",
+	      range: "min",
+	      min: 0,
+	      max: 100,
+	      step: 5,
+	      value: 45,
+	      slide: function (event, ui) {
+		      $("#amount").val(ui.value);
+			      $.ajax({
+				      url: '/volume',
+				      data: { access_token: access_token, volume: ui.value},
+				      success: function(response) {
+					      console.log('done set volume');
+				      }
+			      });
+	      }
+      });
+
+      $("#amount").val($("#slider-vertical").slider("value"));
     </script>
   </body>
 </html>

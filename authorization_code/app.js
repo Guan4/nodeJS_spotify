@@ -270,6 +270,19 @@ app.get('/playPrevious', function(req, res) {
     });
 });
 
+app.get('/volume', function(req, res) {
+	var access_token = req.query.access_token;
+	var volume = req.query.volume;
+	var options = {
+		url: 'https://api.spotify.com/v1/me/player/volume?volume_percent='+volume,
+		headers: { 'Authorization': 'Bearer ' + access_token },
+		json: true
+	};
+	request.put(options, function(error, response, body) {
+		res.json('pause');
+	});
+});
+
 app.get('/refresh_token', function(req, res) {
 
   // requesting access token from refresh token
