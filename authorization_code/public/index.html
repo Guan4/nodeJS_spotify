@@ -102,6 +102,24 @@
         left: 0;
         width: 100%;
       }
+
+      @media screen and (max-width: 1199px) {
+        .demo {
+          display: none;
+          position: absolute;
+          top: 345px;
+          right: 470px;
+        }
+      }
+
+      @media screen and (max-width: 991px) {
+        .demo {
+          display: none;
+          position: absolute;
+          top: 345px;
+          right: 251px;
+        }
+      }
     </style>
   </head>
 
@@ -169,6 +187,7 @@
           }
       }
       var cookie = cookieExists("spotify_auth_state");
+
       (function() {
         var userProfileSource = document.getElementById('user-profile-template').innerHTML,
             userProfileTemplate = Handlebars.compile(userProfileSource),
@@ -312,7 +331,7 @@
 	      });
       })();
 
-// set volume
+      // set volume
       var s = $("#slider-vertical").slider({
 	      orientation: "vertical",
 	      range: "min",
@@ -322,17 +341,18 @@
 	      value: 45,
 	      slide: function (event, ui) {
 		      $("#amount").val(ui.value);
-			      $.ajax({
-				      url: '/volume',
-				      data: { access_token: access_token, volume: ui.value},
-				      success: function(response) {
-					      console.log('done set volume');
-				      }
-			      });
+		      $.ajax({
+			      url: '/volume',
+			      data: { access_token: access_token, volume: ui.value},
+			      success: function(response) {
+				      console.log('done set volume');
+			      }
+		      });
 	      }
       });
 
       $("#amount").val($("#slider-vertical").slider("value"));
+
     </script>
   </body>
 </html>
