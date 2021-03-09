@@ -256,6 +256,7 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.1/handlebars.min.js"></script>
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <!--<script src="touchPunch.js"></script>-->
     <script>
       var access_token;
 		    function cookieExists(name) {
@@ -411,12 +412,12 @@
       })();
 
       // set volume
-      var s = $("#slider-vertical").slider({
+      $("#slider-vertical").slider({
 	      orientation: "vertical",
 	      range: "min",
 	      min: 0,
 	      max: 100,
-	      step: 5,
+	      step: 1,
 	      value: 45,
 	      slide: function (event, ui) {
 		      $("#amount").val(ui.value);
@@ -424,7 +425,7 @@
 			      url: '/volume',
 			      data: { access_token: access_token, volume: ui.value},
 			      success: function(response) {
-				      console.log('done set volume');
+				      // console.log('done set volume');
 			      }
 		      });
 	      }
