@@ -19,13 +19,15 @@ const https = require('https');
 const fs = require('fs');
 
 
-// var client_id = '0619847e14194e56a1626645d10a33d9'; // Your client id
-// var client_secret = 'b4b7fe03489e497985eeac2ec7ea969b'; // Your secret
-//var redirect_uri = 'http://127.0.0.1:8888/callback'; // Your redirect uri
+//for local
+var client_id = '0619847e14194e56a1626645d10a33d9'; // Your client id
+var client_secret = 'b4b7fe03489e497985eeac2ec7ea969b'; // Your secret
+var redirect_uri = 'http://127.0.0.1:8888/callback'; // Your redirect uri
 
-var client_id = 'ad98fc97b8284c7fa6f2ca412218af19'; // Your client id
-var client_secret = '8d2b7b46a6b14a05b522d084533412ca'; // Your secret
-var redirect_uri = 'https://guan.emoji.singles/callback'; // Your redirect uri
+//for online server
+// var client_id = 'ad98fc97b8284c7fa6f2ca412218af19'; // Your client id
+// var client_secret = '8d2b7b46a6b14a05b522d084533412ca'; // Your secret
+// var redirect_uri = 'https://guan.emoji.singles/callback'; // Your redirect uri
 
 /**
  * Generates a random string containing numbers and letters
@@ -324,14 +326,16 @@ app.get('/refresh_token', function(req, res) {
 console.log('Listening on 80 and 443');
 
 // start http server
-let server = http.createServer(app).listen(80);
+// let server = http.createServer(app).listen(80); //for online server
+let server = http.createServer(app).listen(8888); //for local
 
+//for online server
 // start https server
-let sslOptions = {
-	key: fs.readFileSync('/etc/letsencrypt/live/guan.emoji.singles/privkey.pem'),
-	cert: fs.readFileSync('/etc/letsencrypt/live/guan.emoji.singles/fullchain.pem')
-};
+// let sslOptions = {
+// 	key: fs.readFileSync('/etc/letsencrypt/live/guan.emoji.singles/privkey.pem'),
+// 	cert: fs.readFileSync('/etc/letsencrypt/live/guan.emoji.singles/fullchain.pem')
+// };
 
-let serverHttps = https.createServer(sslOptions, app).listen(443)
+// let serverHttps = https.createServer(sslOptions, app).listen(443)
 
 
