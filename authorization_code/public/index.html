@@ -222,7 +222,16 @@
     <div class="container" style="min-width: 750px;">
       <div class="row">
         <div class="col-lg-6 col-md-6 leftDesign" style="text-align: center;">
-          <img class="topD" src="img/notes_w.png">
+          <div id="alarmClock" style="margin-bottom: 20px; width: 400px; height: 200px;">
+            <input type="time" id="alarmTime" style="color: #000;"/>
+            <button onclick="setAlarm(this);" id="alarmButton">Set Alarm</button>
+
+          </div>
+          <!--<div id="emojis" style="margin-bottom: 20px;">-->
+	          <!--<div class="block_outer" style="width: 400px; height: 200px; border: #999A9C solid 1px;">-->
+
+	          <!--</div>-->
+          <!--</div>-->
           <img class="bottomD" src="img/item1.png">
         </div>
 
@@ -447,6 +456,85 @@
       });
 
       $("#amount").val($("#slider-vertical").slider("value"));
+
+
+      function setAlarm(){
+      	console.log('Alarm set!');
+      	var alarm = document.getElementById('alarmTime').value;
+	      var timeArr = alarm.split(":");
+	      var setHour = timeArr[0];
+	      var setMinute = timeArr[1];
+	      var setHourToMin = setHour * 60;
+	      var totalSetMin = setHourToMin + setMinute ;
+
+
+	      //avoid token get expired very hour
+	      var wakeToken = setInterval(function(){
+		      //play music at 0 volume;
+		      initAlarm(0,true);
+		      var today = new Date();
+		      var hour = (today.getHours() < 10 ? '0' : '') + today.getHours();
+		      var hourToMin = hour * 60;
+		      var minutes = (today.getMinutes() < 10 ? '0' : '') + today.getMinutes();
+
+		      var totalMin = hourToMin + minutes ;
+
+		      //clearTimeout when alarm time is closed
+		      if(totalSetMin - totalMin < 3000000){
+			      clearTimeout(wakeToken);
+          }
+	      }, 300000); //every 5 minute
+
+	      //check if it is time to ring
+	      var checkRing = setInterval(function(){
+		      var today = new Date();
+		      var hour = (today.getHours() < 10 ? '0' : '') + today.getHours();
+		      var minutes = (today.getMinutes() < 10 ? '0' : '') + today.getMinutes();
+
+	        if(setHour == hour && setMinute == minutes){
+		        console.log('it is time to ring!!!');
+		        initAlarm(60,false);
+		        clearInterval(checkRing);
+		        clearInterval(wakeToken);
+	        }
+        }, 1000); //every second
+
+      }
+
+      function initAlarm(volume,wakeToken){
+      	console.log('wakeToken or not? '+wakeToken);
+	      $.ajax({
+		      url: '/volume',
+		      data: { access_token: access_token, volume: volume},
+		      success: function(response) {
+			      console.log('set volume to '+ volume);
+		      }
+	      });
+	      $.ajax({
+		      url: '/play',
+		      data: { access_token: access_token},
+		      success: function(response) {
+			      console.log("play music");
+			      $('#playbtn').attr('src', 'img/pause_w.png');
+			      // $('#playbtn').html('<i class="fa fa-pause" aria-hidden="true"></i>');
+			      $('#album_img').addClass('spin');
+		      }
+	      });
+
+	      if(wakeToken){
+		      setTimeout(function(){
+			      $.ajax({
+				      url: '/pause',
+				      data: { access_token: access_token},
+				      success: function(response) {
+					      console.log("wakeToken pause music");
+					      $('#playbtn').attr('src','img/play_w.png');
+					      $('#album_img').removeClass('spin');
+				      }
+			      });
+		      },3000)
+        }
+      }
 
     </script>
   </body>

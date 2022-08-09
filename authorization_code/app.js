@@ -20,8 +20,8 @@ const fs = require('fs');
 
 
 //for local
-var client_id = '0619847e14194e56a1626645d10a33d9'; // Your client id
-var client_secret = 'b4b7fe03489e497985eeac2ec7ea969b'; // Your secret
+var client_id = 'cb9b710d84dd4168a94beecffd8f0bf5'; // Your client id
+var client_secret = '16ef981d182847ae9ff61d975e59b95d'; // Your secret
 var redirect_uri = 'http://127.0.0.1:8888/callback'; // Your redirect uri
 
 //for online server
@@ -57,7 +57,6 @@ var app = express();
 app.use(express.static(__dirname + '/public'))
 	.use(cors())
 	.use(cookieParser());
-
 
 app.get('/login', function(req, res) {
 	var state = generateRandomString(16);
